@@ -5,7 +5,7 @@ import WelcomeView from './components/WelcomeView.vue'
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <img alt="hiberus logo" class="logo" src="@/assets/hiberuslogo.jpg" width="125" height="125" />
 
     <div class="wrapper">
       <WelcomeView msg="¡Bienvenido al gestor de alumnos en prácticas de hiberus!" />

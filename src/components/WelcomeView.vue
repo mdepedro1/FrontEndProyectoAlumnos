@@ -6,7 +6,7 @@ defineProps<{
 
 <template>
   <div class="greetings">
-    <h1 class="green">{{ msg }}</h1>
+    <h1 style="color: coral;">{{ msg }}</h1>
     <h3>
       Visita el siguiente enlace paras tener más información acerca de la
       <a href="https://www.fundacionhiberus.com/" target="_blank" rel="noopener"

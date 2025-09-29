@@ -18,10 +18,17 @@ import {ref, reactive} from 'vue'
         await crearAlumno(alumno)
         mensaje.value='Alumno guardado correctamente'
         guardado.value=true;
+
+        alumno.dni=0
+        alumno.edad=0
+        alumno.nombre=''
       }
       catch(error){
+        guardado.value=false
         console.error(error)
-        mensaje.value='error al guardar el alumno'
+        if (error instanceof Error) {
+        mensaje.value = error.message
+        }
 
       }
     };
@@ -32,7 +39,7 @@ import {ref, reactive} from 'vue'
 
 <template>
   <div class="addAlumno">
-    <h1 style="font-weight: bold; color: aqua;">Añadir alumno</h1>
+    <h1 style="font-weight: bold; color: coral;">Añadir alumno</h1>
     <form @submit.prevent="guardarAlumno">
       <div>
         <label for="dni">DNI:</label>
@@ -48,7 +55,8 @@ import {ref, reactive} from 'vue'
       </div>
       <button type="submit">Añadir alumno</button>
     </form>
-    <p></p>
+    <p v-if="guardado" style="color: green;">{{ mensaje }}</p>
+    <p v-else style="color: red;">{{ mensaje }}</p>
   </div>
 </template>
 
