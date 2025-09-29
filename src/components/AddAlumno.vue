@@ -1,0 +1,55 @@
+<script setup lang="ts">
+
+import { crearAlumno } from '@/services/alumnosService';
+import type { AlumnoDTO } from '@/types/alumnoDTO';
+import {ref, reactive} from 'vue'
+
+
+    const alumno = reactive <AlumnoDTO>({
+      dni:0,
+      nombre: '',
+      edad:0
+    });
+    const mensaje=ref('');
+    const guardado=ref(false);
+
+    const guardarAlumno=async() =>{
+      try{
+        await crearAlumno(alumno)
+        mensaje.value='Alumno guardado correctamente'
+        guardado.value=true;
+      }
+      catch(error){
+        console.error(error)
+        mensaje.value='error al guardar el alumno'
+
+      }
+    };
+
+
+</script>
+
+
+<template>
+  <div class="addAlumno">
+    <h1 style="font-weight: bold; color: aqua;">Añadir alumno</h1>
+    <form @submit.prevent="guardarAlumno">
+      <div>
+        <label for="dni">DNI:</label>
+        <input type="number" id="dni" v-model="alumno.dni"  required />
+      </div>
+      <div>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" v-model="alumno.nombre"  required />
+      </div>
+      <div>
+        <label for="edad">Edad:</label>
+        <input type="number" id="edad" v-model="alumno.edad" required />
+      </div>
+      <button type="submit">Añadir alumno</button>
+    </form>
+    <p></p>
+  </div>
+</template>
+
+
