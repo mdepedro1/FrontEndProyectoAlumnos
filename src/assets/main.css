@@ -10,7 +10,7 @@
 a,
 .green {
   text-decoration: none;
-  color: coral;
+  color: #e67e5c;
   transition: 0.4s;
   padding: 3px;
 }
@@ -25,7 +25,8 @@ a,
   body {
     display: flex;
     place-items: center;
-    background-color: aquamarine;
+    background-color: #f7ede2;
+
   }
 
   #app {
@@ -34,3 +35,30 @@ a,
     padding: 0 2rem;
   }
 }
+
+.entradas{
+    background-color: #f9f3ed;
+    width: 80%;
+    height: 45px;
+    border: 1px solid #d4bfa7;
+    border-radius: 8px;
+    color: #333;
+    margin-bottom: 16px;
+  }
+  .entradas:hover{
+    background-color: #f1e6dd;
+  }
+  .boton {
+    background-color: #e67e5c;
+    color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    width: 40%;
+    height: 45px;
+  }
+  .boton:hover {
+    background-color: #cc6f52;
+  }
+  label{
+    display: block;
+  }

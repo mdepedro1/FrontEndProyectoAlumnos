@@ -12,7 +12,6 @@ import {ref, reactive} from 'vue'
     });
     const mensaje=ref('');
     const guardado=ref(false);
-
     const guardarAlumno=async() =>{
       try{
         await crearAlumno(alumno)
@@ -34,30 +33,32 @@ import {ref, reactive} from 'vue'
     };
 
 
+
+
 </script>
 
 
 <template>
   <div class="addAlumno">
-    <h1 style="font-weight: bold; color: coral;">Añadir alumno</h1>
     <form @submit.prevent="guardarAlumno">
-      <div>
+      <div >
         <label for="dni">DNI:</label>
-        <input type="number" id="dni" v-model="alumno.dni"  required />
+        <input class="entradas" type="number" id="dni" v-model="alumno.dni"  required />
       </div>
-      <div>
+      <div >
         <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" v-model="alumno.nombre"  required />
+        <input class="entradas" type="text" id="nombre" v-model="alumno.nombre"  required />
       </div>
-      <div>
+      <div >
         <label for="edad">Edad:</label>
-        <input type="number" id="edad" v-model="alumno.edad" required />
+        <input  class="entradas" type="number" id="edad" v-model="alumno.edad" required />
       </div>
-      <button type="submit">Añadir alumno</button>
+      <button class="boton" type="submit">Añadir alumno</button>
     </form>
     <p v-if="guardado" style="color: green;">{{ mensaje }}</p>
     <p v-else style="color: red;">{{ mensaje }}</p>
   </div>
 </template>
+
 
 

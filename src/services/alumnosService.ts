@@ -9,8 +9,14 @@ export const getAlumnos = async () => {
 }
 
 export const getAlumnoByDni = async (dni: number) => {
-  const response = await axios.get(`${url}/${dni}`)
-  return response.data
+  try{
+    const response = await axios.get(`${url}/${dni}`)
+    return response.data
+  }catch(error:unknown){
+    if (axios.isAxiosError(error)) {
+          throw new Error( 'Error al obtener el alumno')
+        }
+  }
 }
 
 export const crearAlumno = async (alumno: AlumnoDTO) => {
@@ -27,8 +33,15 @@ export const crearAlumno = async (alumno: AlumnoDTO) => {
 }
 
 export const modificarAlumno = async (dni: number, alumno: AlumnoDTO) => {
-  const response = await axios.put(`${url}/${dni}`, alumno)
-  return response.data
+  try{
+    const response = await axios.put(`${url}/${dni}`, alumno)
+    return response.data
+  }catch(error:unknown){
+    if (axios.isAxiosError(error)) {
+          throw new Error(error.response?.data || error.message || 'Error al modificar el alumno')
+        }
+  }
+
 }
 
 export const eliminarAlumno = async (dni: number) => {
