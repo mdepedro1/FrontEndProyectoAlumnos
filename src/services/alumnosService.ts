@@ -45,6 +45,14 @@ export const modificarAlumno = async (dni: number, alumno: AlumnoDTO) => {
 }
 
 export const eliminarAlumno = async (dni: number) => {
-  const response = await axios.delete(`${url}/${dni}`)
-  return response.data
+  try{
+    const response = await axios.delete(`${url}/${dni}`)
+    return response.data
+  }
+  catch(error:unknown){
+      if(axios.isAxiosError(error)){
+          throw new Error(error.response?.data || error.message || 'Error al eliminar el alumno')
+      }
+  }
+
 }

@@ -1,4 +1,5 @@
 export enum ViewMode {
-  AÑADIR = 'añadir',
-  MODIFICAR = 'modificar'
+  AÑADIR = 1,
+  MODIFICAR = 2,
+  ELIMINAR = 3
 }

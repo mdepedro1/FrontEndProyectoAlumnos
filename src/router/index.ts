@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AddAlumnoView from '@/views/AddAlumnoView.vue'
 import ModifyAlumnoView from '@/views/ModifyAlumnoView.vue'
+import DeleteAlumnoView from '@/views/DeleteAlumnoView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/cambiarAlumno',
       name: 'modifyAlumno',
       component: ModifyAlumnoView
+    },
+    {
+      path: '/eliminarAlumno',
+      name: 'deleteAlumno',
+      component: DeleteAlumnoView
     },
 
   ],

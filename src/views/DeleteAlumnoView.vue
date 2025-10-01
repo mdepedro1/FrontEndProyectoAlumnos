@@ -6,7 +6,7 @@ import { ViewMode } from '@/types/ViewMode';
 
 <template>
   <main>
-      <AlumnoEditorForm :modo="ViewMode.AÑADIR" />
+      <AlumnoEditorForm :modo="ViewMode.ELIMINAR" />
   </main>
 </template>
 

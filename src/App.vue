@@ -14,6 +14,7 @@ import WelcomeView from './components/WelcomeView.vue'
         <RouterLink :to="{name : 'home'}">Home</RouterLink>
         <RouterLink :to="{name: 'addAlumno'}">Añadir Alumno</RouterLink>
         <RouterLink :to="{name: 'modifyAlumno'}">Modificar Alumno</RouterLink>
+        <RouterLink :to="{name: 'deleteAlumno'}">Eliminar Alumno</RouterLink>
       </nav>
     </div>
   </header>
