@@ -8,6 +8,7 @@ const alumnos = ref<AlumnoDTO[]>([])
 onMounted(async () => {
   alumnos.value = await getAlumnos()
 })
+
 </script>
 
 <template>
@@ -15,7 +16,10 @@ onMounted(async () => {
     <h2>Lista de alumnos</h2>
     <ul>
       <li v-for="alumno in alumnos" :key="alumno.dni">
-        {{ alumno.nombre }} - {{ alumno.edad }} años - {{ alumno.dni }}
+        <router-link :to="{ name: 'detalleAlumno', params: { dni: alumno.dni } }">
+          {{ alumno.nombre }} - {{ alumno.edad }} años - {{ alumno.dni }}
+        </router-link>
+
       </li>
     </ul>
   </div>

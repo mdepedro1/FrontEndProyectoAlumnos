@@ -12,7 +12,6 @@ defineProps<{
       <a href="https://www.fundacionhiberus.com/" target="_blank" rel="noopener"
         >fundacion hiberus</a
       >
-      #somosHiberus #berenjena
     </h3>
   </div>
 </template>

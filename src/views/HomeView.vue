@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import TablaAlumnos from '@/components/TablaAlumnos.vue'
 </script>
 
 <template>
   <main>
-    <TablaAlumnos />
+    <img src="@/assets/alumnos.png" alt="imagen de alumnos" width="80%" height="90%"/>
   </main>
 </template>

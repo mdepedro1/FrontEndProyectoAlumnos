@@ -1,15 +1,27 @@
 <script setup lang="ts">
 
 
+import router from '@/router';
 import { modificarAlumno,getAlumnoByDni,crearAlumno,eliminarAlumno } from '@/services/alumnosService';
 import {  type AlumnoDTO } from '@/types/alumnoDTO';
 import { ViewMode} from '@/types/ViewMode';
-import {ref, reactive} from 'vue'
+import {ref, reactive, onMounted} from 'vue'
+import { useRoute } from 'vue-router';
 
     const props = defineProps<{
+      //propiedad modo para saber en que modo estamos (modo vista,añadir,eliminar o modificar)
       modo: ViewMode
+      //cuando quiero ver los datos de un alumno especifico, necesito el dni en la ruta, y lo recibo con una propiedad
+      dni?:number
     }>()
 
+
+    const route = useRoute()
+    const dni = Number(props.dni ?? route.params.dni ?? 0)
+
+
+    console.log(route.fullPath)
+    console.log(dni)
     const alumno = reactive <AlumnoDTO>({
       dni:0,
       nombre: '',
@@ -19,6 +31,8 @@ import {ref, reactive} from 'vue'
     const modificado=ref(false);
     const guardado=ref(false);
     const eliminado=ref(false);
+
+    //Metodo para añadir alumno (ViewMode=AÑADIR)
     const guardarAlumno=async() =>{
       try{
         await crearAlumno(alumno)
@@ -39,6 +53,7 @@ import {ref, reactive} from 'vue'
       }
     };
 
+    //Metodo para añadir alumno (ViewMode=MODIFICAR)
     const modify=async() =>{
       try{
         await modificarAlumno(alumno.dni,alumno)
@@ -55,6 +70,7 @@ import {ref, reactive} from 'vue'
       }
     };
 
+    // Método para evento click del boton mostrar datos del alumno
     const mostrarDatos=async()=>{
       try{
         const encontrado=await getAlumnoByDni(alumno.dni)
@@ -75,6 +91,7 @@ import {ref, reactive} from 'vue'
       }
     }
 
+    //Metodo para añadir alumno (ViewMode=ELIMINAR)
     const deleteAlumno=async()=>{
         try{
           await eliminarAlumno(alumno.dni)
@@ -93,6 +110,28 @@ import {ref, reactive} from 'vue'
         }
     }
 
+    //Metodo para añadir alumno (ViewMode=VER)
+    const cargarDatosAlumno=async()=>{
+      if(props.modo==ViewMode.VER && props.dni && props.dni >0){
+        try{
+          const alumnoencontrado=await getAlumnoByDni(dni)
+          alumno.nombre=alumnoencontrado.nombre
+          alumno.edad=alumnoencontrado.edad
+          alumno.dni=alumnoencontrado.dni
+        }
+        catch(error){
+          console.error('Error al cargar el alumno',error)
+          router.push('/')
+        }
+      }else{
+        router.push('/')
+      }
+    }
+    onMounted(()=>{
+      cargarDatosAlumno()
+    })
+
+    //Metodo para  saber que funcion hay que usar
     const elegirMetodo=async()=>{
       if(props.modo==ViewMode.AÑADIR){
         await guardarAlumno()
@@ -115,18 +154,18 @@ import {ref, reactive} from 'vue'
     <form @submit.prevent="elegirMetodo">
       <div>
         <label for="dni">DNI:</label>
-        <input class="entradas" type="number" id="dni" v-model="alumno.dni"  required />
+        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER"  required />
         <button v-if="props.modo==ViewMode.MODIFICAR||props.modo==ViewMode.ELIMINAR" @click.prevent="mostrarDatos">Mostrar datos del alumno</button>
       </div>
       <div >
         <label for="nombre">Nombre:</label>
-        <input class="entradas" type="text" id="nombre" v-model="alumno.nombre"  :readonly="modo==ViewMode.ELIMINAR" required />
+        <input class="entradas" type="text" id="nombre" v-model="alumno.nombre"  :readonly="modo==ViewMode.ELIMINAR||modo==ViewMode.VER" required />
       </div>
       <div >
         <label for="edad">Edad:</label>
-        <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="modo==ViewMode.ELIMINAR" required />
+        <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="modo==ViewMode.ELIMINAR||modo==ViewMode.VER" required />
       </div>
-      <button  class="boton" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : props.modo==ViewMode.ELIMINAR ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
+      <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : props.modo==ViewMode.ELIMINAR ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
     </form>
     <p v-if="modificado||guardado||eliminado" style="color: green;">{{ mensaje }}</p>
     <p v-else style="color: red;">{{ mensaje }}</p>

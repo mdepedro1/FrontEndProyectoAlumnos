@@ -11,7 +11,8 @@ import WelcomeView from './components/WelcomeView.vue'
       <WelcomeView msg="¡Bienvenido al gestor de alumnos en prácticas de hiberus!" />
 
       <nav>
-        <RouterLink :to="{name : 'home'}">Home</RouterLink>
+        <RouterLink :to="{name : 'home'}">Inicio</RouterLink>
+        <RouterLink :to="{name : 'listaAlumnos'}">Listado de alumnos</RouterLink>
         <RouterLink :to="{name: 'addAlumno'}">Añadir Alumno</RouterLink>
         <RouterLink :to="{name: 'modifyAlumno'}">Modificar Alumno</RouterLink>
         <RouterLink :to="{name: 'deleteAlumno'}">Eliminar Alumno</RouterLink>
