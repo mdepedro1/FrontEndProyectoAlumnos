@@ -5,6 +5,8 @@ import ModifyAlumnoView from '@/views/ModifyAlumnoView.vue'
 import DeleteAlumnoView from '@/views/DeleteAlumnoView.vue'
 import AlumnosView from '@/views/AlumnosView.vue'
 import DetalleAlumnoView from '@/views/DetalleAlumnoView.vue'
+import ModifyAlumnoWithParamView from '@/views/ModifyAlumnoWithParamView.vue'
+import DeleteAlumnoWithParamView from '@/views/DeleteAlumnoWithParamView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,17 +38,22 @@ const router = createRouter({
       name: 'modifyAlumno',
       component: ModifyAlumnoView
     },
-    /*
     {
-      path: '/cambiarAlumno',
-      name: 'modifyAlumno',
-      component: ModifyAlumnoView
+      path: '/cambiarAlumno/:dni',
+      name: 'modifyAlumnoWithParam',
+      component: ModifyAlumnoWithParamView,
+      props:true
     },
-    */
     {
       path: '/eliminarAlumno',
       name: 'deleteAlumno',
       component: DeleteAlumnoView
+    },
+    {
+      path: '/eliminarAlumno/:dni',
+      name: 'deleteAlumnoWithParam',
+      component: DeleteAlumnoWithParamView,
+      props:true
     },
 
   ],

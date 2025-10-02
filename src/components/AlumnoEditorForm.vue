@@ -97,6 +97,8 @@ import { useRoute } from 'vue-router';
           await eliminarAlumno(alumno.dni)
           mensaje.value='Alumno eliminado correctamente'
           eliminado.value=true
+
+
         }
         catch(error){
           eliminado.value=false
@@ -112,7 +114,9 @@ import { useRoute } from 'vue-router';
 
     //Metodo para añadir alumno (ViewMode=VER)
     const cargarDatosAlumno=async()=>{
-      if(!(props.modo==ViewMode.AÑADIR) && props.dni && props.dni >0){
+
+        if(!props.dni || (props.dni<=0))
+          router.push('/')
         try{
           const alumnoencontrado=await getAlumnoByDni(dni)
           alumno.nombre=alumnoencontrado.nombre
@@ -123,22 +127,33 @@ import { useRoute } from 'vue-router';
           console.error('Error al cargar el alumno',error)
           router.push('/')
         }
-      }
+
     }
     onMounted(()=>{
-      cargarDatosAlumno()
+      if(props.modo==ViewMode.VER || props.modo==ViewMode.MODIFICARWPARAM||props.modo==ViewMode.ELIMINARWPARAM ){
+        cargarDatosAlumno()
+      }
     })
 
     //Metodo para  saber que funcion hay que usar
     const elegirMetodo=async()=>{
       if(props.modo==ViewMode.AÑADIR){
         await guardarAlumno()
+        setTimeout(() => {
+            router.push({ name: 'listaAlumnos' })
+          }, 2000)
       }
-      else if(props.modo==ViewMode.MODIFICAR){
+      else if(props.modo==ViewMode.MODIFICAR || props.modo==ViewMode.MODIFICARWPARAM){
         await modify()
+        setTimeout(() => {
+            router.push({ name: 'listaAlumnos' })
+          }, 2000)
       }
-      else if(props.modo==ViewMode.ELIMINAR){
+      else if(props.modo==ViewMode.ELIMINAR || props.modo==ViewMode.ELIMINARWPARAM){
         await deleteAlumno()
+        setTimeout(() => {
+            router.push({ name: 'listaAlumnos' })
+          }, 2000)
       }
     }
 
@@ -152,7 +167,7 @@ import { useRoute } from 'vue-router';
     <form @submit.prevent="elegirMetodo">
       <div>
         <label for="dni">DNI:</label>
-        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER"  required />
+        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER||modo==ViewMode.ELIMINARWPARAM || props.modo==ViewMode.MODIFICARWPARAM  "  required />
         <button v-if="props.modo==ViewMode.MODIFICAR||props.modo==ViewMode.ELIMINAR" @click.prevent="mostrarDatos">Mostrar datos del alumno</button>
       </div>
       <div >
@@ -163,17 +178,17 @@ import { useRoute } from 'vue-router';
         <label for="edad">Edad:</label>
         <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="modo==ViewMode.ELIMINAR||modo==ViewMode.VER" required />
       </div>
-      <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : props.modo==ViewMode.ELIMINAR ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
-      <!--
+      <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : (props.modo==ViewMode.ELIMINAR || props.modo==ViewMode.ELIMINARWPARAM) ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
+
       <div v-if="modo==ViewMode.VER" style="display: flex; flex-direction: row; gap: 10px;">
-        <router-link :to="{name: 'modififyAlumnoWithParam',params:{dni:alumno.dni}}"
-          class="boton" type="submit">'Modificar alumno'</router-link>
+        <router-link :to="{name: 'modifyAlumnoWithParam',params:{dni:alumno.dni}}"
+          class="boton" type="submit">Modificar alumno</router-link>
         <router-link :to="{name: 'deleteAlumnoWithParam',params:{dni:alumno.dni}}"
-          class="boton"  type="submit">'Eliminar alumno'</router-link>
+          class="boton"  type="submit">Eliminar alumno</router-link>
       </div>
 
 
-      -->
+
 
 
     </form>
