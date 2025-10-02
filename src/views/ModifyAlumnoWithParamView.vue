@@ -13,7 +13,7 @@ const dni=Number(props.dni ?? 0)
 
 <template>
   <main>
-      <AlumnoEditorForm :modo="ViewMode.VER"  :dni="dni" />
+      <AlumnoEditorForm :modo="ViewMode.MODIFICAR"  :dni="dni" />
   </main>
 </template>
 

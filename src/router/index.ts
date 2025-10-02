@@ -36,6 +36,13 @@ const router = createRouter({
       name: 'modifyAlumno',
       component: ModifyAlumnoView
     },
+    /*
+    {
+      path: '/cambiarAlumno',
+      name: 'modifyAlumno',
+      component: ModifyAlumnoView
+    },
+    */
     {
       path: '/eliminarAlumno',
       name: 'deleteAlumno',
