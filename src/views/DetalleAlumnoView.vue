@@ -18,7 +18,7 @@ onMounted(()=>{
 
 <template>
   <main>
-      <AlumnoEditorForm :modo="ViewMode.VER"  :dni="dni" />
+      <AlumnoEditorForm :modo="ViewMode.VER"  :dni="dni"  />
   </main>
 </template>
 

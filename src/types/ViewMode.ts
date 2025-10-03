@@ -3,6 +3,4 @@ export enum ViewMode {
   MODIFICAR = 2,
   ELIMINAR = 3,
   VER=4,
-  MODIFICARWPARAM=5,
-  ELIMINARWPARAM=6
 }

@@ -5,8 +5,8 @@ import router from '@/router';
 import { modificarAlumno,getAlumnoByDni,crearAlumno,eliminarAlumno } from '@/services/alumnosService';
 import {  type AlumnoDTO } from '@/types/alumnoDTO';
 import { ViewMode} from '@/types/ViewMode';
-import {ref, reactive, onMounted} from 'vue'
-import { useRoute } from 'vue-router';
+import {ref, reactive, onMounted,computed, watch} from 'vue'
+import { RouterLink, useRoute } from 'vue-router';
 
     const props = defineProps<{
       //propiedad modo para saber en que modo estamos (modo vista,añadir,eliminar o modificar)
@@ -15,18 +15,26 @@ import { useRoute } from 'vue-router';
       dni?:number
     }>()
 
+    const rutaConParametro = computed(() => {
+      if (props.modo === ViewMode.MODIFICAR) return 'modifyAlumnoWithParam'
+      return 'deleteAlumnoWithParam'
+    })
 
     const route = useRoute()
-    const dni = Number(props.dni ?? route.params.dni ?? 0)
+    const dni = ref(Number(props.dni ?? route.params.dni ?? 0))
 
 
-    console.log(route.fullPath)
-    console.log(dni)
     const alumno = reactive <AlumnoDTO>({
       dni:0,
       nombre: '',
       edad:0
     });
+
+    console.log('ruta con dni :', route.path,'   ',dni.value)
+
+    console.log(route.fullPath)
+    console.log(dni.value)
+
     const mensaje=ref('');
     const modificado=ref(false);
     const guardado=ref(false);
@@ -42,6 +50,9 @@ import { useRoute } from 'vue-router';
         alumno.dni=0
         alumno.edad=0
         alumno.nombre=''
+        setTimeout(() => {
+            router.push({ name: 'listaAlumnos' })
+          }, 2000)
       }
       catch(error){
         guardado.value=false
@@ -59,6 +70,9 @@ import { useRoute } from 'vue-router';
         await modificarAlumno(alumno.dni,alumno)
         mensaje.value='Alumno modificado correctamente'
         modificado.value=true;
+        setTimeout(() => {
+            router.push({ name: 'listaAlumnos' })
+          }, 2000)
       }
       catch(error){
         modificado.value=false
@@ -71,6 +85,10 @@ import { useRoute } from 'vue-router';
     };
 
     // Método para evento click del boton mostrar datos del alumno
+    //Con la modificacion de que haya un unico viewmode para eliminar y modificar, este metodo me sobra
+    //porque cuando hago clic en el router-link de mostrar datos da un dni, y se carga la nueva pagina
+    // como hay dni se ejecuta en el onmounted cargardatos alumno (la condicion para que se ejecute es que no sea viewmode añadir y que el dni este presente)
+    /*
     const mostrarDatos=async()=>{
       try{
         const encontrado=await getAlumnoByDni(alumno.dni)
@@ -90,6 +108,7 @@ import { useRoute } from 'vue-router';
         }
       }
     }
+      */
 
     //Metodo para añadir alumno (ViewMode=ELIMINAR)
     const deleteAlumno=async()=>{
@@ -97,7 +116,9 @@ import { useRoute } from 'vue-router';
           await eliminarAlumno(alumno.dni)
           mensaje.value='Alumno eliminado correctamente'
           eliminado.value=true
-
+          setTimeout(() => {
+            router.push({ name: 'listaAlumnos' })
+          }, 2000)
 
         }
         catch(error){
@@ -115,10 +136,13 @@ import { useRoute } from 'vue-router';
     //Metodo para añadir alumno (ViewMode=VER)
     const cargarDatosAlumno=async()=>{
 
-        if(!props.dni || (props.dni<=0))
+        if(!Number.isInteger(dni.value)||!dni.value || (dni.value<=0)){
           router.push('/')
+          return
+        }
         try{
-          const alumnoencontrado=await getAlumnoByDni(dni)
+          console.log('entro aqui')
+          const alumnoencontrado=await getAlumnoByDni(dni.value)
           alumno.nombre=alumnoencontrado.nombre
           alumno.edad=alumnoencontrado.edad
           alumno.dni=alumnoencontrado.dni
@@ -129,8 +153,19 @@ import { useRoute } from 'vue-router';
         }
 
     }
+    watch(
+      () =>route.params.dni,
+      (nuevodni)=>{
+         dni.value = Number(nuevodni ?? 0)
+         if(dni.value>0){
+            cargarDatosAlumno()
+         }
+
+      },
+      {immediate:true}
+    )
     onMounted(()=>{
-      if(props.modo==ViewMode.VER || props.modo==ViewMode.MODIFICARWPARAM||props.modo==ViewMode.ELIMINARWPARAM ){
+      if(!(props.modo==ViewMode.AÑADIR) && props.dni && dni.value>0 ){
         cargarDatosAlumno()
       }
     })
@@ -139,21 +174,15 @@ import { useRoute } from 'vue-router';
     const elegirMetodo=async()=>{
       if(props.modo==ViewMode.AÑADIR){
         await guardarAlumno()
-        setTimeout(() => {
-            router.push({ name: 'listaAlumnos' })
-          }, 2000)
+
       }
-      else if(props.modo==ViewMode.MODIFICAR || props.modo==ViewMode.MODIFICARWPARAM){
+      else if(props.modo==ViewMode.MODIFICAR ){
         await modify()
-        setTimeout(() => {
-            router.push({ name: 'listaAlumnos' })
-          }, 2000)
+
       }
-      else if(props.modo==ViewMode.ELIMINAR || props.modo==ViewMode.ELIMINARWPARAM){
+      else if(props.modo==ViewMode.ELIMINAR){
         await deleteAlumno()
-        setTimeout(() => {
-            router.push({ name: 'listaAlumnos' })
-          }, 2000)
+
       }
     }
 
@@ -167,8 +196,12 @@ import { useRoute } from 'vue-router';
     <form @submit.prevent="elegirMetodo">
       <div>
         <label for="dni">DNI:</label>
-        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER||modo==ViewMode.ELIMINARWPARAM || props.modo==ViewMode.MODIFICARWPARAM  "  required />
-        <button v-if="props.modo==ViewMode.MODIFICAR||props.modo==ViewMode.ELIMINAR" @click.prevent="mostrarDatos">Mostrar datos del alumno</button>
+        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER||dni>0   "  required />
+        <RouterLink class="mostrarDatos" :to="{name: rutaConParametro,params:{dni:alumno.dni}}"
+        v-if="dni <=0&&(props.modo==ViewMode.MODIFICAR  ||props.modo==ViewMode.ELIMINAR)"
+         >
+          Mostrar datos del alumno
+        </RouterLink>
       </div>
       <div >
         <label for="nombre">Nombre:</label>
@@ -178,13 +211,13 @@ import { useRoute } from 'vue-router';
         <label for="edad">Edad:</label>
         <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="modo==ViewMode.ELIMINAR||modo==ViewMode.VER" required />
       </div>
-      <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : (props.modo==ViewMode.ELIMINAR || props.modo==ViewMode.ELIMINARWPARAM) ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
+      <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : props.modo==ViewMode.ELIMINAR  ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
 
       <div v-if="modo==ViewMode.VER" style="display: flex; flex-direction: row; gap: 10px;">
-        <router-link :to="{name: 'modifyAlumnoWithParam',params:{dni:alumno.dni}}"
-          class="boton" type="submit">Modificar alumno</router-link>
-        <router-link :to="{name: 'deleteAlumnoWithParam',params:{dni:alumno.dni}}"
-          class="boton"  type="submit">Eliminar alumno</router-link>
+        <RouterLink :to="{name: 'modifyAlumnoWithParam',params:{dni:alumno.dni}}"
+          class="boton" >Modificar alumno</RouterLink>
+        <RouterLink :to="{name: 'deleteAlumnoWithParam',params:{dni:alumno.dni}}"
+          class="boton">Eliminar alumno</RouterLink>
       </div>
 
 
@@ -198,8 +231,10 @@ import { useRoute } from 'vue-router';
 </template>
 
 <style>
-  button{
+  .mostrarDatos{
     display: block;
+    width: 25%;
+    font-size: 13px;
     border-radius: 8px;
     background-color: cadetblue ;
     color: white;
