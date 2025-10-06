@@ -5,6 +5,7 @@ import ModifyAlumnoView from '@/views/ModifyAlumnoView.vue'
 import DeleteAlumnoView from '@/views/DeleteAlumnoView.vue'
 import AlumnosView from '@/views/AlumnosView.vue'
 import DetalleAlumnoView from '@/views/DetalleAlumnoView.vue'
+import ErrorView from '@/views/ErrorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +52,12 @@ const router = createRouter({
       path: '/eliminarAlumno/:dni',
       name: 'deleteAlumnoWithParam',
       component: DeleteAlumnoView,
+      props:true
+    },
+    {
+      path: '/error',
+      name: 'vistaError',
+      component: ErrorView,
       props:true
     },
 

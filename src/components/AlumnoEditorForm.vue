@@ -5,7 +5,7 @@ import router from '@/router';
 import { modificarAlumno,getAlumnoByDni,crearAlumno,eliminarAlumno } from '@/services/alumnosService';
 import {  type AlumnoDTO } from '@/types/alumnoDTO';
 import { ViewMode} from '@/types/ViewMode';
-import {ref, reactive, onMounted,computed, watch} from 'vue'
+import {ref, reactive,watch, onMounted,computed} from 'vue'
 import { RouterLink, useRoute } from 'vue-router';
 
     const props = defineProps<{
@@ -21,8 +21,10 @@ import { RouterLink, useRoute } from 'vue-router';
     })
 
     const route = useRoute()
-    const dni = ref(Number(props.dni ?? route.params.dni ?? 0))
+    const dni = ref(props.dni !== undefined ? Number(props.dni) :
+                route.params.dni !== undefined ? Number(route.params.dni) : null);
 
+    console.log('dni recibido ',dni.value)
 
     const alumno = reactive <AlumnoDTO>({
       dni:0,
@@ -85,19 +87,23 @@ import { RouterLink, useRoute } from 'vue-router';
     };
 
     // Método para evento click del boton mostrar datos del alumno
-    //Con la modificacion de que haya un unico viewmode para eliminar y modificar, este metodo me sobra
-    //porque cuando hago clic en el router-link de mostrar datos da un dni, y se carga la nueva pagina
-    // como hay dni se ejecuta en el onmounted cargardatos alumno (la condicion para que se ejecute es que no sea viewmode añadir y que el dni este presente)
     /*
     const mostrarDatos=async()=>{
+      console.log('dni mostrar ',dni.value)
+      if(dni.value==null || isNaN(dni.value) || (dni.value===0 && props.dni)){
+        router.push({ name: 'listaAlumnos' })
+        return
+      }
       try{
-        const encontrado=await getAlumnoByDni(alumno.dni)
+
+        const encontrado=await getAlumnoByDni(dni.value)
         if(encontrado && encontrado.nombre){
           alumno.nombre=encontrado.nombre
           alumno.edad=encontrado.edad
           mensaje.value=''
         }
       }catch(error){
+        router.push({ name: 'listaAlumnos' })
         modificado.value=false
         eliminado.value=false
         console.error(error)
@@ -107,8 +113,8 @@ import { RouterLink, useRoute } from 'vue-router';
         mensaje.value = error.message
         }
       }
-    }
-      */
+    }*/
+
 
     //Metodo para añadir alumno (ViewMode=ELIMINAR)
     const deleteAlumno=async()=>{
@@ -135,9 +141,14 @@ import { RouterLink, useRoute } from 'vue-router';
 
     //Metodo para añadir alumno (ViewMode=VER)
     const cargarDatosAlumno=async()=>{
-
-        if(!Number.isInteger(dni.value)||!dni.value || (dni.value<=0)){
-          router.push('/')
+        console.log('dni en el cargar: ', dni.value)
+        if(!Number.isInteger(dni.value)||!dni.value || (dni.value<=0) || isNaN(dni.value)){
+          router.push({
+            name:'vistaError',
+            query:{
+              dni:dni.value
+            }
+          })
           return
         }
         try{
@@ -149,25 +160,65 @@ import { RouterLink, useRoute } from 'vue-router';
         }
         catch(error){
           console.error('Error al cargar el alumno',error)
-          router.push('/')
+          const mensaje = error instanceof Error ? error.message : String(error);
+          router.push({
+            name:'vistaError',
+            query:{
+              dni:dni.value,
+              msg:mensaje
+            }
+          })
         }
 
     }
-    watch(
-      () =>route.params.dni,
-      (nuevodni)=>{
-         dni.value = Number(nuevodni ?? 0)
-         if(dni.value>0){
-            cargarDatosAlumno()
-         }
 
-      },
-      {immediate:true}
-    )
-    onMounted(()=>{
-      if(!(props.modo==ViewMode.AÑADIR) && props.dni && dni.value>0 ){
+    watch(
+      () => route.params.dni,
+      (nuevodni) => {
+        if (nuevodni === undefined) {
+          dni.value = null;
+          alumno.dni=0
+          alumno.nombre=''
+          alumno.edad=0
+          return;
+        }
+        console.log('pars ',nuevodni)
+        const parsed = Number(nuevodni)
+        console.log('pars ',parsed)
+        if ( isNaN(parsed) || parsed <= 0) {
+          router.push({
+            name:'vistaError',
+            query:{
+              dni:nuevodni,
+            }
+          })
+          return
+        }
+
+        dni.value = parsed
         cargarDatosAlumno()
+      },
+
+    )
+
+    onMounted(()=>{
+      console.log('entra aqui 1?')
+      if(!(props.modo==ViewMode.AÑADIR)){
+        console.log('entra aqui 2?')
+        if(dni.value !== null && dni.value!==0  ){
+          if(isNaN(dni.value)){
+              router.push({
+            name:'vistaError',
+            query:{
+              dni:dni.value,
+            }
+          })
+          }
+          console.log('entra aqui 3?')
+          cargarDatosAlumno()
+        }
       }
+
     })
 
     //Metodo para  saber que funcion hay que usar
@@ -196,9 +247,9 @@ import { RouterLink, useRoute } from 'vue-router';
     <form @submit.prevent="elegirMetodo">
       <div>
         <label for="dni">DNI:</label>
-        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER||dni>0   "  required />
+        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER||(dni ?? 0)>0   "  required />
         <RouterLink class="mostrarDatos" :to="{name: rutaConParametro,params:{dni:alumno.dni}}"
-        v-if="dni <=0&&(props.modo==ViewMode.MODIFICAR  ||props.modo==ViewMode.ELIMINAR)"
+        v-if="(dni ?? 0) <=0&&(props.modo==ViewMode.MODIFICAR  ||props.modo==ViewMode.ELIMINAR)"
          >
           Mostrar datos del alumno
         </RouterLink>
