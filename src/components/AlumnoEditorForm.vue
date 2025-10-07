@@ -5,8 +5,10 @@ import router from '@/router';
 import { modificarAlumno,getAlumnoByDni,crearAlumno,eliminarAlumno } from '@/services/alumnosService';
 import {  type AlumnoDTO } from '@/types/alumnoDTO';
 import { ViewMode} from '@/types/ViewMode';
-import {ref, reactive,watch, onMounted,computed} from 'vue'
+import {ref, reactive,watch, onMounted,computed, onBeforeMount} from 'vue'
 import { RouterLink, useRoute } from 'vue-router';
+
+
 
     const props = defineProps<{
       //propiedad modo para saber en que modo estamos (modo vista,añadir,eliminar o modificar)
@@ -14,6 +16,15 @@ import { RouterLink, useRoute } from 'vue-router';
       //cuando quiero ver los datos de un alumno especifico, necesito el dni en la ruta, y lo recibo con una propiedad
       dni?:number
     }>()
+
+
+    //
+    //
+    //importante para los siguientes dias
+    //
+    onBeforeMount(() => {
+      viewMode.value = props.modo;
+    });
 
     const rutaConParametro = computed(() => {
       if (props.modo === ViewMode.MODIFICAR) return 'modifyAlumnoWithParam'
@@ -41,8 +52,10 @@ import { RouterLink, useRoute } from 'vue-router';
     const modificado=ref(false);
     const guardado=ref(false);
     const eliminado=ref(false);
+    const viewMode = ref<ViewMode>();
 
     //Metodo para añadir alumno (ViewMode=AÑADIR)
+
     const guardarAlumno=async() =>{
       try{
         await crearAlumno(alumno)
@@ -171,6 +184,21 @@ import { RouterLink, useRoute } from 'vue-router';
         }
 
     }
+    /* forma de hacer las funciones mas limpia
+        async function guardarAlumno2(){
+
+        }
+    */
+
+    //me defino una variable readonly, que con el watch, cada vez que cambie dependiendo de que en modo estemos me sirve para
+    //decirle a los inputs si son de modo read only o no (en vez de ver si el viewmode es uno o otro todo el rato)
+    const readonly = ref(false);
+
+    watch(viewMode, () => {
+      if(viewMode.value == ViewMode.VER){
+        readonly.value = true;
+      }
+    })
 
     watch(
       () => route.params.dni,
