@@ -55,6 +55,7 @@ a,
     border-radius: 8px;
     width: 40%;
     height: 45px;
+    text-align: center;
   }
   .boton:hover {
     background-color: #cc6f52;

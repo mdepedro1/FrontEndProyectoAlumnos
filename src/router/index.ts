@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AddAlumnoView from '@/views/AddAlumnoView.vue'
-import ModifyAlumnoView from '@/views/ModifyAlumnoView.vue'
-import DeleteAlumnoView from '@/views/DeleteAlumnoView.vue'
 import AlumnosView from '@/views/AlumnosView.vue'
 import DetalleAlumnoView from '@/views/DetalleAlumnoView.vue'
 import ErrorView from '@/views/ErrorView.vue'
@@ -21,38 +19,18 @@ const router = createRouter({
       component: AlumnosView,
     },
     {
-      path: '/alumnos/:dni',
+      path: '/alumno/:dni',
       name: 'detalleAlumno',
       component: DetalleAlumnoView,
-      props:true
-
+      props:route => ({
+        dni:route.params.dni,
+        mode: route.query.mode
+      })
     },
     {
       path: '/nuevoAlumno',
       name: 'addAlumno',
       component: AddAlumnoView
-    },
-    {
-      path: '/cambiarAlumno/',
-      name: 'modifyAlumno',
-      component: ModifyAlumnoView
-    },
-    {
-      path: '/cambiarAlumno/:dni',
-      name: 'modifyAlumnoWithParam',
-      component: ModifyAlumnoView,
-      props:true
-    },
-    {
-      path: '/eliminarAlumno',
-      name: 'deleteAlumno',
-      component: DeleteAlumnoView
-    },
-    {
-      path: '/eliminarAlumno/:dni',
-      name: 'deleteAlumnoWithParam',
-      component: DeleteAlumnoView,
-      props:true
     },
     {
       path: '/error',

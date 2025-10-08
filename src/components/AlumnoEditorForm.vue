@@ -5,7 +5,7 @@ import router from '@/router';
 import { modificarAlumno,getAlumnoByDni,crearAlumno,eliminarAlumno } from '@/services/alumnosService';
 import {  type AlumnoDTO } from '@/types/alumnoDTO';
 import { ViewMode} from '@/types/ViewMode';
-import {ref, reactive,watch, onMounted,computed, onBeforeMount} from 'vue'
+import {ref, reactive,watch, onMounted, onBeforeMount} from 'vue'
 import { RouterLink, useRoute } from 'vue-router';
 
 
@@ -26,10 +26,7 @@ import { RouterLink, useRoute } from 'vue-router';
       viewMode.value = props.modo;
     });
 
-    const rutaConParametro = computed(() => {
-      if (props.modo === ViewMode.MODIFICAR) return 'modifyAlumnoWithParam'
-      return 'deleteAlumnoWithParam'
-    })
+
 
     const route = useRoute()
     const dni = ref(props.dni !== undefined ? Number(props.dni) :
@@ -193,10 +190,22 @@ import { RouterLink, useRoute } from 'vue-router';
     //me defino una variable readonly, que con el watch, cada vez que cambie dependiendo de que en modo estemos me sirve para
     //decirle a los inputs si son de modo read only o no (en vez de ver si el viewmode es uno o otro todo el rato)
     const readonly = ref(false);
+    watch(() =>route.query.mode,
+      (nuevoModo) => {
+        if(nuevoModo!==undefined){
+          viewMode.value=Number(nuevoModo)
+        }
+      },
+
+
+    )
+
 
     watch(viewMode, () => {
-      if(viewMode.value == ViewMode.VER){
+      if(viewMode.value == ViewMode.VER||viewMode.value==ViewMode.ELIMINAR){
         readonly.value = true;
+      }else{
+        readonly.value=false
       }
     })
 
@@ -275,28 +284,30 @@ import { RouterLink, useRoute } from 'vue-router';
     <form @submit.prevent="elegirMetodo">
       <div>
         <label for="dni">DNI:</label>
-        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="modo==ViewMode.VER||(dni ?? 0)>0   "  required />
-        <RouterLink class="mostrarDatos" :to="{name: rutaConParametro,params:{dni:alumno.dni}}"
-        v-if="(dni ?? 0) <=0&&(props.modo==ViewMode.MODIFICAR  ||props.modo==ViewMode.ELIMINAR)"
-         >
-          Mostrar datos del alumno
-        </RouterLink>
+        <input class="entradas" type="number" id="dni" v-model="alumno.dni" :readonly="readonly||(dni ?? 0)>0   "  required />
+
       </div>
       <div >
         <label for="nombre">Nombre:</label>
-        <input class="entradas" type="text" id="nombre" v-model="alumno.nombre"  :readonly="modo==ViewMode.ELIMINAR||modo==ViewMode.VER" required />
+        <input class="entradas" type="text" id="nombre" v-model="alumno.nombre"  :readonly="readonly" required />
       </div>
       <div >
         <label for="edad">Edad:</label>
-        <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="modo==ViewMode.ELIMINAR||modo==ViewMode.VER" required />
+        <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="readonly" required />
       </div>
       <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : props.modo==ViewMode.ELIMINAR  ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
 
       <div v-if="modo==ViewMode.VER" style="display: flex; flex-direction: row; gap: 10px;">
-        <RouterLink :to="{name: 'modifyAlumnoWithParam',params:{dni:alumno.dni}}"
+        <RouterLink :to="{name: 'detalleAlumno',params:{dni:alumno.dni},query:{mode:ViewMode.MODIFICAR}}"
           class="boton" >Modificar alumno</RouterLink>
-        <RouterLink :to="{name: 'deleteAlumnoWithParam',params:{dni:alumno.dni}}"
+        <RouterLink :to="{name: 'detalleAlumno',params:{dni:alumno.dni},query:{mode:ViewMode.ELIMINAR}}"
           class="boton">Eliminar alumno</RouterLink>
+
+      </div>
+
+      <div  style="display: flex; flex-direction: row; gap: 10px;padding-top: 8px;">
+          <RouterLink :to="{name: 'listaAlumnos'}"
+          class="boton">Cancelar</RouterLink>
       </div>
 
 
@@ -309,14 +320,4 @@ import { RouterLink, useRoute } from 'vue-router';
   </div>
 </template>
 
-<style>
-  .mostrarDatos{
-    display: block;
-    width: 25%;
-    font-size: 13px;
-    border-radius: 8px;
-    background-color: cadetblue ;
-    color: white;
 
-  }
-</style>
