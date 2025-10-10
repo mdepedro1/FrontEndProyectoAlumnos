@@ -190,15 +190,7 @@ import { RouterLink, useRoute } from 'vue-router';
     //me defino una variable readonly, que con el watch, cada vez que cambie dependiendo de que en modo estemos me sirve para
     //decirle a los inputs si son de modo read only o no (en vez de ver si el viewmode es uno o otro todo el rato)
     const readonly = ref(false);
-    watch(() =>route.query.mode,
-      (nuevoModo) => {
-        if(nuevoModo!==undefined){
-          viewMode.value=Number(nuevoModo)
-        }
-      },
 
-
-    )
 
 
     watch(viewMode, () => {
@@ -260,15 +252,15 @@ import { RouterLink, useRoute } from 'vue-router';
 
     //Metodo para  saber que funcion hay que usar
     const elegirMetodo=async()=>{
-      if(props.modo==ViewMode.AÑADIR){
+      if(viewMode.value==ViewMode.AÑADIR){
         await guardarAlumno()
 
       }
-      else if(props.modo==ViewMode.MODIFICAR ){
+      else if(viewMode.value==ViewMode.MODIFICAR ){
         await modify()
 
       }
-      else if(props.modo==ViewMode.ELIMINAR){
+      else if(viewMode.value==ViewMode.ELIMINAR){
         await deleteAlumno()
 
       }
@@ -295,13 +287,15 @@ import { RouterLink, useRoute } from 'vue-router';
         <label for="edad">Edad:</label>
         <input  class="entradas" type="number" id="edad" v-model="alumno.edad" :readonly="readonly" required />
       </div>
-      <button  class="boton" v-if="!(modo==ViewMode.VER)" type="submit">{{props.modo==ViewMode.AÑADIR ? 'Añadir Alumno' : props.modo==ViewMode.ELIMINAR  ? 'Eliminar Alumno' : 'Modificar alumno'}}</button>
+      <button  class="boton" v-if="!(viewMode==ViewMode.VER)" type="submit">{{viewMode==ViewMode.AÑADIR ? 'Añadir Alumno' : viewMode==ViewMode.ELIMINAR  ? 'Eliminar Definitivamente' : 'Aceptar cambios'}}</button>
 
-      <div v-if="modo==ViewMode.VER" style="display: flex; flex-direction: row; gap: 10px;">
-        <RouterLink :to="{name: 'detalleAlumno',params:{dni:alumno.dni},query:{mode:ViewMode.MODIFICAR}}"
-          class="boton" >Modificar alumno</RouterLink>
-        <RouterLink :to="{name: 'detalleAlumno',params:{dni:alumno.dni},query:{mode:ViewMode.ELIMINAR}}"
-          class="boton">Eliminar alumno</RouterLink>
+      <div v-if="viewMode==ViewMode.VER" style="display: flex; flex-direction: row; gap: 10px;">
+        <button class="boton" @click="viewMode=ViewMode.MODIFICAR">
+          Modificar alumno
+        </button>
+        <button class="boton" @click="viewMode=ViewMode.ELIMINAR">
+          Eliminar alumno
+        </button>
 
       </div>
 

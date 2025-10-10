@@ -1,21 +1,37 @@
 <script setup lang="ts">
 import type { AlumnoDTO } from '@/types/alumnoDTO'
 import { getAlumnos } from '@/services/alumnosService'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { ViewMode } from '@/types/ViewMode'
 import { RouterLink } from 'vue-router'
 
 const alumnos = ref<AlumnoDTO[]>([])
+const loading = ref(false);
 
 onMounted(async () => {
+  loading.value = true;
   alumnos.value = await getAlumnos()
+  loading.value = false;
 })
+
+watch(loading,
+  ()=>{
+    if(loading.value){
+
+    }
+  }
+
+)
 
 </script>
 
 <template>
   <div>
-    <h2>Lista de alumnos</h2>
+    <div v-if="loading" class="cargando">
+      <img src="@/assets/loading.gif" />
+    </div>
+    <div v-else>
+      <h2>Lista de alumnos</h2>
     <table>
       <thead>
         <tr>
@@ -45,10 +61,20 @@ onMounted(async () => {
         </tr>
       </tbody>
     </table>
+
+    </div>
+
   </div>
 </template>
 
 <style>
+
+.cargando img {
+  background-color: #f7ede2;
+  width: 100%;
+  height: 100%;
+}
+
 .iconos{
   background-color: white;
   display: inline-flex;
